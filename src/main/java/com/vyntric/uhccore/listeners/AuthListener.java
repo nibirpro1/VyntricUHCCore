@@ -27,6 +27,11 @@ import java.util.Locale;
  * Freezes/protects players that have not logged in (or registered) yet, and kicks them if
  * they take too long to do so. Everything here is skipped entirely if auth.enabled is false
  * in config.yml.
+ *
+ * On join, a not-logged-in player is sent to their lobby glass box to log in there (safe,
+ * out of the way). Once they log in successfully, they're sent back to wherever they were
+ * standing when they last quit (see AuthCommand). We also check if their IP matches any
+ * other known account, and alert staff if so.
  */
 public class AuthListener implements Listener {
 
@@ -57,6 +62,10 @@ public class AuthListener implements Listener {
             player.sendMessage(prefix + ChatColor.YELLOW + "You haven't registered yet! Type: "
                     + ChatColor.DARK_PURPLE + "/register <password>");
         }
+
+        // Send them to the lobby glass box to log in, regardless of what phase the game is
+        // in - keeps them safe/out of the way while they type their password.
+        plugin.getLobbyCageManager().cage(player);
 
         int timeout = auth.getLoginTimeoutSeconds();
         if (timeout > 0) {
@@ -90,7 +99,13 @@ public class AuthListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        auth.markLoggedOut(event.getPlayer().getUniqueId());
+        Player player = event.getPlayer();
+        auth.markLoggedOut(player.getUniqueId());
+
+        // Remember where they were so we can send them back here after their next login.
+        if (auth.isAuthEnabled()) {
+            auth.saveLastLocation(player.getUniqueId(), player.getLocation());
+        }
     }
 
     private boolean isLocked(Player player) {
