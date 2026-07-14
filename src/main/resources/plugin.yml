@@ -4,11 +4,12 @@ main: com.vyntric.uhccore.VyntricUHCCore
 api-version: '1.21'
 author: Vyntric
 description: Custom UHC core plugin with border, teams, scoreboard, deathmatch, item nerfs and cross-team combat tracking.
+softdepend: [PlaceholderAPI]
 
 commands:
   vyntricuhc:
     description: Main VyntricUHCCore command
-    usage: /vyntricuhc <start|stop|restart|border|team|deathmatch|pregen|meetup|passinfo|pvp|reload>
+    usage: /vyntricuhc <start|stop|restart|border|team|deathmatch|pregen|setlobby|meetup|passinfo|pvp|leaderboard|stats|bounty|reload>
     permission: vyntric.uhc.admin
     aliases: [vuhc, vyntric]
   world:
@@ -20,7 +21,7 @@ commands:
     usage: /login <password>
   register:
     description: Register a password for your account
-    usage: /register <password> <confirmPassword>
+    usage: /register <password> [confirmPassword]
   changepass:
     description: Change your password (must be logged in)
     usage: /changepass <currentPassword> <newPassword>

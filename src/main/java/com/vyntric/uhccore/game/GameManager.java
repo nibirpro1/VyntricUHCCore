@@ -43,6 +43,8 @@ public class GameManager {
     public void startGame() {
         if (phase != GamePhase.WAITING) return;
 
+        plugin.getLobbyCageManager().releaseAll();
+
         elapsedSeconds = 0;
         deathmatchTriggered = false;
         pvpOverride = null;
@@ -50,11 +52,16 @@ public class GameManager {
         plugin.getBorderManager().initializeBorder();
         plugin.getBorderManager().startShrinking();
 
+        if (plugin.getConfig().getBoolean("teams.spread-on-start", true)) {
+            plugin.getRandomSpreadTeleporter().spreadAll();
+        }
+
         phase = graceEnabled ? GamePhase.GRACE_PERIOD : GamePhase.PVP_ENABLED;
         broadcast(plugin.getMessage("game-started"));
         if (phase == GamePhase.GRACE_PERIOD) {
             broadcast(plugin.getConfig().getString("grace-period.message", "&aGrace period active."));
         }
+        plugin.getDiscordWebhook().send("🟢 The UHC game has started!");
 
         startTicking();
     }
@@ -82,6 +89,8 @@ public class GameManager {
         for (Player p : plugin.getServer().getOnlinePlayers()) {
             p.setGameMode(GameMode.SURVIVAL);
         }
+
+        plugin.getLobbyCageManager().cageAllOnline();
 
         broadcast(plugin.getConfig().getString("messages.game-restarted",
                 "&aThe game has been reset. Ready for a new round!"));
@@ -137,6 +146,7 @@ public class GameManager {
         deathmatchTriggered = true;
         phase = GamePhase.DEATHMATCH;
         broadcast(plugin.getMessage("deathmatch-starting"));
+        plugin.getDiscordWebhook().send("⚔️ Deathmatch has started - friendly fire is off, everyone fights!");
 
         // No forced small-border teleport anymore - deathmatch just means everyone fights
         // it out wherever they already are, with friendly fire ignored (see GameListener).
@@ -152,6 +162,18 @@ public class GameManager {
                         .findFirst();
                 String winnerName = winner.map(t -> t.getName()).orElse("No one");
                 broadcast(plugin.getMessage("winner-announcement").replace("{winner}", winnerName));
+                plugin.getDiscordWebhook().send("🏆 " + winnerName + " has won the game!");
+
+                winner.ifPresent(team -> {
+                    for (java.util.UUID memberId : team.getMembers()) {
+                        if (!team.isEliminated(memberId)) {
+                            Player member = plugin.getServer().getPlayer(memberId);
+                            String name = member != null ? member.getName() : plugin.getStatsManager().getName(memberId);
+                            plugin.getStatsManager().addWin(memberId, name);
+                        }
+                    }
+                });
+
                 stopGame();
             }
         }

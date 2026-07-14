@@ -246,6 +246,11 @@ public final class CrossteamModule implements Listener, CommandExecutor, TabComp
             return;
         }
 
+        if (!plugin.getConfirmationManager().confirm(sender, "track:reset:" + team.getName(),
+                "clear cross-team tracking data for " + team.getName())) {
+            return;
+        }
+
         for (String memberName : team.getEntries()) {
             UUID uuid = Bukkit.getOfflinePlayer(memberName).getUniqueId();
             Map<String, Integer> memberHits = hitCounter.get(uuid);

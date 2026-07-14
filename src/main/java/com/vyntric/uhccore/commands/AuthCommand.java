@@ -41,66 +41,71 @@ public class AuthCommand implements CommandExecutor {
 
     private void handleRegister(Player player, String[] args) {
         if (auth.isRegistered(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Tumi already register kora achho. /login <password> diye login koro.");
-            return;
-        }
-
-        if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Byabohar: /register <password> <confirmPassword>");
-            return;
-        }
-
-        String password = args[0];
-        String confirm = args[1];
-
-        if (!password.equals(confirm)) {
-            player.sendMessage(ChatColor.RED + "Password ar confirm password mile nai! Abar try koro.");
-            return;
-        }
-
-        if (password.length() < auth.getMinPasswordLength()) {
-            player.sendMessage(ChatColor.RED + "Password kom pokkhe " + auth.getMinPasswordLength()
-                    + " character howa lagbe.");
-            return;
-        }
-
-        auth.register(player, password);
-        player.sendMessage(ChatColor.GREEN + "Register shofol hoyeche! Tumi ekhon login kora obosthay achho.");
-    }
-
-    private void handleLogin(Player player, String[] args) {
-        if (!auth.isRegistered(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Tumi register kora nai. /register <password> <confirmPassword> use koro.");
-            return;
-        }
-
-        if (auth.isLoggedIn(player.getUniqueId())) {
-            player.sendMessage(ChatColor.YELLOW + "Tumi already login kora achho.");
+            player.sendMessage(ChatColor.RED + "You are already registered. Use /login <password> to log in.");
             return;
         }
 
         if (args.length < 1) {
-            player.sendMessage(ChatColor.RED + "Byabohar: /login <password>");
+            player.sendMessage(ChatColor.RED + "Usage: /register <password> [confirmPassword]");
+            return;
+        }
+
+        String password = args[0];
+
+        // Confirm-password is optional - if given, it must match; if not given, we just
+        // register with the single password. This avoids players getting stuck frozen just
+        // because they typed "/register mypassword" without a second word.
+        if (args.length >= 2) {
+            String confirm = args[1];
+            if (!password.equals(confirm)) {
+                player.sendMessage(ChatColor.RED + "Password and confirm password don't match! Try again.");
+                return;
+            }
+        }
+
+        if (password.length() < auth.getMinPasswordLength()) {
+            player.sendMessage(ChatColor.RED + "Password must be at least " + auth.getMinPasswordLength()
+                    + " characters long.");
+            return;
+        }
+
+        auth.register(player, password);
+        player.sendMessage(ChatColor.GREEN + "Registration successful! You are now logged in.");
+    }
+
+    private void handleLogin(Player player, String[] args) {
+        if (!auth.isRegistered(player.getUniqueId())) {
+            player.sendMessage(ChatColor.RED + "You are not registered yet. Use /register <password>.");
+            return;
+        }
+
+        if (auth.isLoggedIn(player.getUniqueId())) {
+            player.sendMessage(ChatColor.YELLOW + "You are already logged in.");
+            return;
+        }
+
+        if (args.length < 1) {
+            player.sendMessage(ChatColor.RED + "Usage: /login <password>");
             return;
         }
 
         boolean success = auth.login(player, args[0]);
         if (success) {
-            player.sendMessage(ChatColor.GREEN + "Login shofol! Server e swagotom, " + player.getName() + "!");
+            player.sendMessage(ChatColor.GREEN + "Login successful! Welcome to the server, " + player.getName() + "!");
         } else {
-            player.sendMessage(ChatColor.RED + "Password vul! Abar try koro. Password bhule gele operator "
-                    + "ke bolo /resetpass diye reset kore dite.");
+            player.sendMessage(ChatColor.RED + "Wrong password! Try again. If you forgot your password, "
+                    + "ask an operator to reset it with /resetpass.");
         }
     }
 
     private void handleChangePass(Player player, String[] args) {
         if (!auth.isLoggedIn(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Age login koro, tarpor password change korte parbe.");
+            player.sendMessage(ChatColor.RED + "You must log in before you can change your password.");
             return;
         }
 
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Byabohar: /changepass <currentPassword> <newPassword>");
+            player.sendMessage(ChatColor.RED + "Usage: /changepass <currentPassword> <newPassword>");
             return;
         }
 
@@ -109,11 +114,11 @@ public class AuthCommand implements CommandExecutor {
 
         AuthManager.ChangeResult result = auth.changePassword(player, currentPassword, newPassword);
         switch (result) {
-            case SUCCESS -> player.sendMessage(ChatColor.GREEN + "Password shofol vabe change hoyeche!");
-            case WRONG_CURRENT_PASSWORD -> player.sendMessage(ChatColor.RED + "Current password ta vul dise.");
-            case NEW_PASSWORD_TOO_SHORT -> player.sendMessage(ChatColor.RED + "Notun password kom pokkhe "
-                    + auth.getMinPasswordLength() + " character howa lagbe.");
-            case NOT_REGISTERED -> player.sendMessage(ChatColor.RED + "Tumi register kora nai.");
+            case SUCCESS -> player.sendMessage(ChatColor.GREEN + "Password changed successfully!");
+            case WRONG_CURRENT_PASSWORD -> player.sendMessage(ChatColor.RED + "Your current password is incorrect.");
+            case NEW_PASSWORD_TOO_SHORT -> player.sendMessage(ChatColor.RED + "New password must be at least "
+                    + auth.getMinPasswordLength() + " characters long.");
+            case NOT_REGISTERED -> player.sendMessage(ChatColor.RED + "You are not registered.");
         }
     }
 }

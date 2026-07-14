@@ -51,19 +51,19 @@ public class AuthListener implements Listener {
 
         String prefix = plugin.getMessage("prefix");
         if (auth.isRegistered(player.getUniqueId())) {
-            player.sendMessage(prefix + ChatColor.YELLOW + "Server e login kora nai! Type: "
+            player.sendMessage(prefix + ChatColor.YELLOW + "You are not logged in! Type: "
                     + ChatColor.DARK_PURPLE + "/login <password>");
         } else {
-            player.sendMessage(prefix + ChatColor.YELLOW + "Tumi ekhono register koro nai! Type: "
-                    + ChatColor.DARK_PURPLE + "/register <password> <confirmPassword>");
+            player.sendMessage(prefix + ChatColor.YELLOW + "You haven't registered yet! Type: "
+                    + ChatColor.DARK_PURPLE + "/register <password>");
         }
 
         int timeout = auth.getLoginTimeoutSeconds();
         if (timeout > 0) {
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                 if (player.isOnline() && !auth.isLoggedIn(player.getUniqueId())) {
-                    player.kickPlayer(ChatColor.RED + "Time out! Tumi " + timeout
-                            + " second er moddhe login/register korte parO nai.");
+                    player.kickPlayer(ChatColor.RED + "Timed out! You didn't login/register within "
+                            + timeout + " seconds.");
                 }
             }, timeout * 20L);
         }
@@ -162,7 +162,7 @@ public class AuthListener implements Listener {
     public void onChat(AsyncPlayerChatEvent event) {
         if (isLocked(event.getPlayer())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.RED + "Age login/register koro, tarpor chat korte parbe.");
+            event.getPlayer().sendMessage(ChatColor.RED + "You must login/register first before you can chat.");
         }
     }
 
@@ -175,7 +175,7 @@ public class AuthListener implements Listener {
         if (!ALLOWED_COMMANDS.contains(base)) {
             event.setCancelled(true);
             event.getPlayer().sendMessage(ChatColor.RED
-                    + "Age login/register korte hobe. Onno kono command use kora jabe na.");
+                    + "You must login/register first. No other commands can be used.");
         }
     }
 }

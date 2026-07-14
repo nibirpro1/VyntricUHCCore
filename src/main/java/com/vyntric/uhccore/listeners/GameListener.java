@@ -57,14 +57,54 @@ public class GameListener implements Listener {
     public void onDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         plugin.getTeamManager().markEliminated(player);
+        plugin.getStatsManager().addDeath(player.getUniqueId(), player.getName());
+
+        Player killer = player.getKiller();
+        String killFeedMessage;
+        if (killer != null) {
+            String weapon = describeWeapon(killer);
+            killFeedMessage = ChatColor.RED + player.getName() + ChatColor.GRAY + " was slain by "
+                    + ChatColor.RED + killer.getName() + ChatColor.GRAY + weapon;
+
+            plugin.getStatsManager().addKill(killer.getUniqueId(), killer.getName());
+
+            int bounty = plugin.getBountyManager().claimBounty(player.getUniqueId());
+            if (bounty > 0) {
+                killFeedMessage += ChatColor.GOLD + " (+" + bounty + " bounty!)";
+            }
+        } else {
+            killFeedMessage = ChatColor.RED + player.getName() + ChatColor.GRAY + " " + describeDeathCause(player);
+        }
 
         String msg = plugin.getMessage("player-eliminated").replace("{player}", player.getName());
         plugin.getServer().broadcastMessage(ChatColor.translateAlternateColorCodes('&',
                 plugin.getMessage("prefix") + msg));
+        plugin.getServer().broadcastMessage(plugin.getMessage("prefix") + killFeedMessage);
 
         plugin.getServer().getScheduler().runTask(plugin, () -> {
             player.setGameMode(GameMode.SPECTATOR);
         });
+    }
+
+    private String describeWeapon(Player killer) {
+        var item = killer.getInventory().getItemInMainHand();
+        if (item == null || item.getType().isAir()) return "";
+        String name = item.getType().name().toLowerCase().replace('_', ' ');
+        return " using a " + name;
+    }
+
+    private String describeDeathCause(Player player) {
+        var cause = player.getLastDamageCause();
+        if (cause == null) return "died.";
+        return switch (cause.getCause()) {
+            case FALL -> "fell to their death.";
+            case LAVA -> "died in lava.";
+            case FIRE, FIRE_TICK -> "burned to death.";
+            case DROWNING -> "drowned.";
+            case STARVATION -> "starved to death.";
+            case VOID -> "fell into the void.";
+            default -> "died.";
+        };
     }
 
     @EventHandler

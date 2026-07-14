@@ -23,26 +23,30 @@ public class ResetPassCommand implements CommandExecutor {
         }
 
         if (args.length < 1) {
-            sender.sendMessage(ChatColor.RED + "Byabohar: /resetpass <ign>");
+            sender.sendMessage(ChatColor.RED + "Usage: /resetpass <ign>");
             return true;
         }
 
         String targetName = args[0];
+
+        if (!plugin.getConfirmationManager().confirm(sender, "resetpass:" + targetName.toLowerCase(),
+                "reset " + targetName + "'s password (this will kick them if online)")) return true;
+
         boolean reset = plugin.getAuthManager().resetPassword(targetName);
 
         if (!reset) {
-            sender.sendMessage(ChatColor.RED + "'" + targetName + "' register kora nai, reset korar kichu nai.");
+            sender.sendMessage(ChatColor.RED + "'" + targetName + "' isn't registered, nothing to reset.");
             return true;
         }
 
-        sender.sendMessage(ChatColor.GREEN + targetName + " er password reset kora hoyeche. "
-                + "Se abar /register <password> <confirmPassword> diye notun password banate parbe.");
+        sender.sendMessage(ChatColor.GREEN + targetName + "'s password has been reset. "
+                + "They can set a new one with /register <password>.");
 
         Player target = plugin.getServer().getPlayerExact(targetName);
         if (target != null) {
-            target.sendMessage(ChatColor.YELLOW + "Ekjon operator tomar password reset kore diyeche.");
-            target.kickPlayer(ChatColor.YELLOW + "Tomar password reset kora hoyeche.\n"
-                    + ChatColor.GRAY + "Abar server e dhuke /register <password> <confirmPassword> koro.");
+            target.sendMessage(ChatColor.YELLOW + "An operator has reset your password.");
+            target.kickPlayer(ChatColor.YELLOW + "Your password has been reset.\n"
+                    + ChatColor.GRAY + "Rejoin the server and use /register <password>.");
         }
 
         return true;

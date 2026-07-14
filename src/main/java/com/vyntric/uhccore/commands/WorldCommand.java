@@ -56,10 +56,16 @@ public class WorldCommand implements CommandExecutor {
                 return true;
             }
 
+            if (!plugin.getConfirmationManager().confirm(sender, "world:border-set",
+                    "set the world border to " + sizeInt + "x" + sizeInt + " over " + seconds + " seconds")) return true;
+
             plugin.getBorderManager().setSizeGradual(size, seconds);
             sender.sendMessage(ChatColor.GREEN + "World border will reach " + sizeInt + "x" + sizeInt
                     + " gradually over " + seconds + " seconds.");
         } else {
+            if (!plugin.getConfirmationManager().confirm(sender, "world:border-set",
+                    "set the world border to " + sizeInt + "x" + sizeInt + " instantly")) return true;
+
             plugin.getBorderManager().setSizeInstant(size);
             sender.sendMessage(ChatColor.GREEN + "World border set to " + sizeInt + "x" + sizeInt + ".");
         }

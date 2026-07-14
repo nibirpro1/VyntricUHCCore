@@ -69,6 +69,50 @@ teams:
   friendly-fire: false
   max-team-size: 4
   auto-balance: true
+  # Randomly spreads each team (or solo player) to its own point within the border when
+  # /vyntricuhc start runs, so nobody spawns right on top of an enemy.
+  spread-on-start: true
+  spread-min-distance: 100
+
+# ==========================================
+#  Waiting lobby glass boxes
+# ==========================================
+lobby-cage:
+  # Puts every player into their own sealed glass box the moment they join, for as long as
+  # the game is in the waiting lobby (before /vyntricuhc start) - the classic UHC "everyone
+  # loads in together" look. Boxes are cleared and everyone is released the instant the
+  # game starts. Set the location with /vyntricuhc setlobby (stand where you want it, then
+  # run the command) - it also flips this to true automatically.
+  enabled: true
+  world: "world"
+  center-x: 0
+  center-y: 100
+  center-z: 0
+  # Interior width/depth of each box in blocks (always forced to an odd number, minimum 3)
+  size: 3
+  # Interior height of each box in blocks
+  height: 3
+  # Distance between each box and the next
+  spacing: 6
+  # How many boxes per row before wrapping to a new row
+  per-row: 5
+  material: GLASS
+  # If true, the floor is cleared along with the walls/ceiling when players are released.
+  # Keep this true while teams.spread-on-start is true (players get teleported away
+  # instantly anyway). If you turn spread-on-start off, set this to false too, so released
+  # players are left standing on solid ground instead of falling.
+  clear-floor-on-release: true
+
+confirmation:
+  # Master switch for the "run it again to confirm" safety check on risky commands
+  # (start/stop/restart/reload, pregen start, team limit changes, manual pvp toggle,
+  # world border set, resetpass, and /track reset).
+  enabled: true
+  window-seconds: 15
+
+discord:
+  enabled: false
+  webhook-url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
 
 scoreboard:
   enabled: true
