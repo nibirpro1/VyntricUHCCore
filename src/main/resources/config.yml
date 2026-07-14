@@ -1,0 +1,145 @@
+# ==========================================
+#  VyntricUHCCore Configuration
+# ==========================================
+
+auth:
+  # Master switch for the login/register system. Turn off if you already use a dedicated
+  # auth plugin (e.g. AuthMe) and don't want this one fighting with it.
+  enabled: true
+  min-password-length: 4
+  # How many seconds a player has to /login or /register before being kicked.
+  login-timeout-seconds: 60
+  alt-detection:
+    # If true, staff (vyntric.uhc.admin) get an in-chat alert when a joining player shares
+    # an IP with another known account, e.g. "Bobcat00 may be an alt of Dinnerbone, Notch".
+    enabled: true
+
+pregen:
+  # If true, the plugin pre-generates/pre-loads chunks automatically when the server starts,
+  # before the game moves into the WAITING (open) phase.
+  auto-run-on-enable: true
+  # Square area size in BLOCKS (matches border sizing), e.g. 500 = 500x500 blocks centered on border.center-x/z
+  size: 500
+  # How many chunks to request per server tick. Higher = faster but more load on the server.
+  chunks-per-tick: 20
+  broadcast-progress: true
+  progress-interval-percent: 10
+
+border:
+  world: "world"
+  center-x: 0
+  center-z: 0
+  start-size: 3000
+  final-size: 300
+  shrink-duration-minutes: 45
+  damage-per-block: 0.2
+  warning-distance: 5
+
+grace-period:
+  enabled: true
+  duration-minutes: 15
+  message: "&aGrace period active! PVP is disabled."
+
+deathmatch:
+  # When this triggers, players fight wherever they already are - no border shrink or
+  # teleport happens anymore, and friendly fire is always allowed (teammates can hit each
+  # other) for the rest of the round, regardless of teams.friendly-fire below.
+  enabled: true
+  trigger-after-minutes: 60
+
+combat-logout:
+  # If a player disconnects anywhere after /vyntricuhc start (grace period, pvp, or
+  # deathmatch), they turn into a zombie carrying all their gear/loot instead of just
+  # vanishing. Discourages combat logging to dodge a fight.
+  enabled: true
+
+golden-apple:
+  # Fully vanilla golden apples - no cooldown, regeneration stays.
+  nerf-enabled: false
+  remove-regeneration: false
+  remove-absorption: false
+  cooldown-seconds: 0
+
+potions:
+  nerf-enabled: true
+  disable-splash-negative: true
+  disable-instant-health-splash: false
+
+teams:
+  friendly-fire: false
+  max-team-size: 4
+  auto-balance: true
+
+scoreboard:
+  enabled: true
+  title: "&5&lVYNTRIC &f&lUHC"
+  update-interval-ticks: 20
+  lines:
+    - ""
+    - "&7Time: &f{time}"
+    - "&7Border: &f{border_size}"
+    - "&7Alive: &a{alive_players}"
+    - "&7Teams: &f{alive_teams}"
+    - ""
+    - "&7Phase: &e{phase}"
+    - ""
+    - "&5play.vyntric.net"
+
+tablist:
+  enabled: true
+  header:
+    - ""
+    - "&5&lVYNTRIC &f&lHUB"
+    - "&7play.vyntric.net"
+    - ""
+  footer:
+    - ""
+    - "&7Phase: &f{phase}"
+    - "&7Alive: &a{alive_players}&7/&f{online} &7| &7Teams left: &f{alive_teams}"
+    - "&7Border: &f{border_size}"
+    - ""
+
+messages:
+  prefix: "&8[&5Vyntric&8] "
+  pregen-started: "&eStarting chunk pre-generation before opening..."
+  pregen-complete: "&aChunk pre-generation complete! Server is now open."
+  grace-period-updated: "&5Meetup/grace period time set to {minutes} minute(s)."
+  game-restarted: "&aThe game has been reset. Ready for a new round!"
+  game-started: "&aThe UHC game has started! Good luck."
+  game-stopped: "&cThe UHC game has been stopped."
+  pvp-enabled: "&c&lPVP has been enabled!"
+  deathmatch-starting: "&c&lDeathmatch is starting! Players are being teleported."
+  player-eliminated: "&e{player} &7has been eliminated!"
+  winner-announcement: "&6&l{winner} &e&lhas won the game!"
+
+# ==========================================
+#  Cross-Team Tracker (merged from VyntricCrossteam)
+# ==========================================
+crossteam:
+  settings:
+    # How many cross-team hits (against the same enemy team) before it counts as suspicious
+    cross-team-threshold: 5
+    # Save hit-data to disk every X minutes (also saves automatically on server stop)
+    autosave-interval-minutes: 5
+    # Broadcast a live alert to staff (vyntric.alerts permission) the moment threshold is crossed
+    broadcast-alerts: true
+    # Count damage from projectiles (arrows, tridents, etc.) back to the shooter
+    track-projectile-damage: true
+
+  messages:
+    prefix: "&5&lVyntric &d» "
+    analyzing: "&fAnalyzing combat data for team: &d%team%"
+    no-data: "&7No combat data found for &d%team%&7."
+    not-found: "&cCould not find team or player: &f%input%"
+    report-line: "&7Hits landed on &d%team% &7» &e%hits%"
+    cross-team-detected: "&c&lWARNING &7» &fPossible cross-teaming with &d%team% &7(&e%hits% hits&7)"
+    reset-success: "&7Cleared tracked data for &d%team%&7."
+    no-permission: "&cYou don't have permission to do that."
+    top-header: "&7Top cross-team offenders &7(&dserver-wide&7):"
+    top-line: "&f#%rank% &d%player% &7» &e%hits% &7hits"
+    top-empty: "&7No combat data recorded yet."
+    help-header: "&7Vyntric commands:"
+    help-track: "&d/track <team|player> &7- cross-team hit report"
+    help-top: "&d/track top &7- server-wide top offenders"
+    help-reset: "&d/track reset <team> &7- clear a team's data &8(admin)"
+    help-help: "&d/track help &7- show this menu"

@@ -1,0 +1,62 @@
+name: VyntricUHCCore
+version: '${project.version}'
+main: com.vyntric.uhccore.VyntricUHCCore
+api-version: '1.21'
+author: Vyntric
+description: Custom UHC core plugin with border, teams, scoreboard, deathmatch, item nerfs and cross-team combat tracking.
+
+commands:
+  vyntricuhc:
+    description: Main VyntricUHCCore command
+    usage: /vyntricuhc <start|stop|restart|border|team|deathmatch|pregen|meetup|passinfo|pvp|reload>
+    permission: vyntric.uhc.admin
+    aliases: [vuhc, vyntric]
+  world:
+    description: Operator world border control
+    usage: /world border set <size> [seconds]
+    permission: vyntric.uhc.world
+  login:
+    description: Log in with your password
+    usage: /login <password>
+  register:
+    description: Register a password for your account
+    usage: /register <password> <confirmPassword>
+  changepass:
+    description: Change your password (must be logged in)
+    usage: /changepass <currentPassword> <newPassword>
+  resetpass:
+    description: Reset a player's forgotten password
+    usage: /resetpass <ign>
+    permission: vyntric.uhc.resetpass
+  track:
+    description: Track and analyze cross-team combat data
+    usage: |
+      /track <team|player>  - show cross-team hit report
+      /track top            - show top offenders server-wide
+      /track reset <team>   - reset stored data for a team
+      /track help           - show command help
+    permission: vyntric.track
+    aliases: [vt, crossteam]
+
+permissions:
+  vyntric.uhc.admin:
+    description: Allows control of the UHC game
+    default: op
+  vyntric.uhc.world:
+    description: Allows setting the world border with /world border set
+    default: op
+  vyntric.uhc.resetpass:
+    description: Allows resetting another player's login password
+    default: op
+  vyntric.track:
+    description: Allows use of /track for teams and players
+    default: true
+  vyntric.track.top:
+    description: Allows use of /track top
+    default: true
+  vyntric.admin:
+    description: Allows resetting tracked cross-team data
+    default: op
+  vyntric.alerts:
+    description: Receive live cross-team-detected alerts
+    default: op
