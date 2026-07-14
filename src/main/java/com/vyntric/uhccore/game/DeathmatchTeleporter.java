@@ -28,6 +28,7 @@ public class DeathmatchTeleporter {
 
         List<Player> alivePlayers = plugin.getServer().getOnlinePlayers().stream()
                 .filter(p -> p.getGameMode() != GameMode.SPECTATOR)
+                .map(p -> (Player) p)
                 .toList();
 
         int count = alivePlayers.size();
