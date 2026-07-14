@@ -3,6 +3,7 @@ package com.vyntric.uhccore.commands;
 import com.vyntric.uhccore.VyntricUHCCore;
 import com.vyntric.uhccore.auth.AuthManager;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -71,6 +72,7 @@ public class AuthCommand implements CommandExecutor {
 
         auth.register(player, password);
         player.sendMessage(ChatColor.GREEN + "Registration successful! You are now logged in.");
+        sendPlayerHome(player);
     }
 
     private void handleLogin(Player player, String[] args) {
@@ -91,10 +93,23 @@ public class AuthCommand implements CommandExecutor {
 
         boolean success = auth.login(player, args[0]);
         if (success) {
-            player.sendMessage(ChatColor.GREEN + "Login successful! Welcome to the server, " + player.getName() + "!");
+            player.sendMessage(ChatColor.GREEN + "Login successful! Welcome back, " + player.getName() + "!");
+            sendPlayerHome(player);
         } else {
             player.sendMessage(ChatColor.RED + "Wrong password! Try again. If you forgot your password, "
                     + "ask an operator to reset it with /resetpass.");
+        }
+    }
+
+    /**
+     * After a successful login/register, sends the player back to wherever they were
+     * standing when they last quit. If we have no saved location (first time joining),
+     * they just stay in the lobby glass box they logged in from.
+     */
+    private void sendPlayerHome(Player player) {
+        Location last = auth.getLastLocation(player.getUniqueId());
+        if (last != null) {
+            player.teleport(last);
         }
     }
 
