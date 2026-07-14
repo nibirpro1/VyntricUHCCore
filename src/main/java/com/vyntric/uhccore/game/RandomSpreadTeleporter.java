@@ -86,6 +86,7 @@ public class RandomSpreadTeleporter {
     private List<List<Player>> groupPlayersByTeam() {
         List<Player> alive = plugin.getServer().getOnlinePlayers().stream()
                 .filter(p -> p.getGameMode() != GameMode.SPECTATOR)
+                .map(p -> (Player) p)
                 .toList();
 
         Collection<UHCTeam> teams = plugin.getTeamManager().getAllTeams();
