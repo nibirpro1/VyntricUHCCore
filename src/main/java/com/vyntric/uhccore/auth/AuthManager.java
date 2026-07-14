@@ -1,6 +1,9 @@
 package com.vyntric.uhccore.auth;
 
 import com.vyntric.uhccore.VyntricUHCCore;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -18,7 +21,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 /**
- * Handles the login/register system for VyntricUHCCore.
+ * Handles the login/register system for VyntricUHCCore, including basic alt-account
+ * detection by shared IP.
  *
  * Data is stored in auth.yml, keyed by player UUID:
  *   players:
@@ -30,16 +34,12 @@ import java.util.logging.Level;
  *       last-login: <epoch millis>
  *       last-ip: <ip address as string>
  *       ips: [<every ip address this uuid has ever connected from>]
+ *       last-location:
+ *         world, x, y, z, yaw, pitch   <- where they were when they last quit
  *
- * Note on purpose: we deliberately never store the plaintext password anywhere, even for
- * operators. The salt+hash is one-way, so nobody (not even server owners) can recover it.
- * That's why there is no "view password" command - /vyntric passinfo below shows account
- * metadata (registration time, last login, IPs, possible alts) instead, which covers the
- * actual use case (checking on a suspicious/forgetful account) without creating a way to
- * read out a password a player may reuse elsewhere.
- *
- * Login state itself is NOT persisted across restarts/relogs on purpose - every time a
- * player joins the server they must /login again, exactly like the classic AuthMe flow.
+ * We never store the plaintext password anywhere - the salt+hash is one-way, so nobody
+ * (not even server owners) can recover it. Login state is NOT persisted across
+ * restarts/relogs on purpose - every time a player joins the server they must /login again.
  */
 public class AuthManager {
 
@@ -211,7 +211,8 @@ public class AuthManager {
         UUID uuid = findUuidByName(username);
         if (uuid == null || !isRegistered(uuid)) return false;
 
-        data.set(path(uuid), null);
+        data.set(path(uuid) + ".salt", null);
+        data.set(path(uuid) + ".hash", null);
         save();
         markLoggedOut(uuid);
         return true;
@@ -269,8 +270,45 @@ public class AuthManager {
     }
 
     /**
-     * Read-only snapshot of everything we know about an account, for /vyntric passinfo.
-     * Deliberately does NOT include the password hash/salt - see class javadoc.
+     * Saves where the player currently is, so we can send them back here the next time
+     * they successfully log in. Called when they quit.
+     */
+    public void saveLastLocation(UUID uuid, Location loc) {
+        if (loc == null || loc.getWorld() == null) return;
+        String p = path(uuid) + ".last-location";
+        data.set(p + ".world", loc.getWorld().getName());
+        data.set(p + ".x", loc.getX());
+        data.set(p + ".y", loc.getY());
+        data.set(p + ".z", loc.getZ());
+        data.set(p + ".yaw", loc.getYaw());
+        data.set(p + ".pitch", loc.getPitch());
+        save();
+    }
+
+    /**
+     * Returns the location this player was at when they last quit, or null if we have none
+     * saved (first time joining) or the world no longer exists.
+     */
+    public Location getLastLocation(UUID uuid) {
+        String p = path(uuid) + ".last-location";
+        if (!data.contains(p + ".world")) return null;
+
+        World world = Bukkit.getWorld(data.getString(p + ".world"));
+        if (world == null) return null;
+
+        return new Location(
+                world,
+                data.getDouble(p + ".x"),
+                data.getDouble(p + ".y"),
+                data.getDouble(p + ".z"),
+                (float) data.getDouble(p + ".yaw"),
+                (float) data.getDouble(p + ".pitch")
+        );
+    }
+
+    /**
+     * Read-only snapshot of everything we know about an account, for /vyntricuhc passinfo.
+     * Deliberately does NOT include the password hash/salt.
      */
     public static final class AccountInfo {
         public final String username;
@@ -294,7 +332,7 @@ public class AuthManager {
     }
 
     /**
-     * Looks up account info by username for the /vyntric passinfo command.
+     * Looks up account info by username for the /vyntricuhc passinfo command.
      * Returns null if we have no record at all for that name.
      */
     public AccountInfo getAccountInfo(String username) {
