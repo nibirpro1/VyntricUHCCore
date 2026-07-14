@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -26,7 +27,7 @@ public class DeathmatchTeleporter {
         double centerZ = plugin.getBorderManager().getCenterZ();
         double radius = plugin.getConfig().getDouble("deathmatch.border-size", 50) / 2.5;
 
-        List<Player> alivePlayers = plugin.getServer().getOnlinePlayers().stream()
+        List<Player> alivePlayers = new ArrayList<Player>(plugin.getServer().getOnlinePlayers()).stream()
                 .filter(p -> p.getGameMode() != GameMode.SPECTATOR)
                 .toList();
 
