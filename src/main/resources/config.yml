@@ -86,7 +86,7 @@ lobby-cage:
   enabled: true
   world: "world"
   center-x: 0
-  center-y: 120
+  center-y: 200
   center-z: 0
   # Interior width/depth of each box in blocks (always forced to an odd number, minimum 3)
   size: 21
