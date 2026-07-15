@@ -1,12 +1,15 @@
 package com.vyntric.uhccore.listeners;
 
 import com.vyntric.uhccore.VyntricUHCCore;
+import com.vyntric.uhccore.game.GamePhase;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -20,11 +23,46 @@ public class GameListener implements Listener {
         this.plugin = plugin;
     }
 
+    /**
+     * True for anyone who should be exempt from the pre-game build/PVP lock below -
+     * operators and anyone with the admin permission can break/place/fight freely even
+     * before /vyntricuhc start, everyone else can't.
+     */
+    private boolean hasLockBypass(Player player) {
+        return player.isOp() || player.hasPermission("vyntric.uhc.admin");
+    }
+
+    private boolean isPreGame() {
+        GamePhase phase = plugin.getGameManager().getPhase();
+        return phase == GamePhase.WAITING || phase == GamePhase.PREGENERATING;
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPreGameBreak(BlockBreakEvent event) {
+        if (!isPreGame()) return;
+        if (hasLockBypass(event.getPlayer())) return;
+
+        event.setCancelled(true);
+        event.getPlayer().sendMessage(ChatColor.RED + "You can't break blocks before the game starts.");
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPreGamePlace(BlockPlaceEvent event) {
+        if (!isPreGame()) return;
+        if (hasLockBypass(event.getPlayer())) return;
+
+        event.setCancelled(true);
+        event.getPlayer().sendMessage(ChatColor.RED + "You can't place blocks before the game starts.");
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onDamage(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player victim)) return;
         Player attacker = resolveAttacker(event);
         if (attacker == null) return;
+
+        // Operators/admins can always fight, including before the game starts.
+        if (hasLockBypass(attacker)) return;
 
         // Block PVP during grace period / waiting
         if (!plugin.getGameManager().isPvpEnabled()) {
@@ -35,7 +73,7 @@ public class GameListener implements Listener {
 
         // Once deathmatch starts it's every player for themselves - friendly fire is always
         // allowed here regardless of the teams.friendly-fire config, so teammates can fight too.
-        if (plugin.getGameManager().getPhase() == com.vyntric.uhccore.game.GamePhase.DEATHMATCH) {
+        if (plugin.getGameManager().getPhase() == GamePhase.DEATHMATCH) {
             return;
         }
 
@@ -112,6 +150,10 @@ public class GameListener implements Listener {
         plugin.getScoreboardManager().updateFor(event.getPlayer());
         // Refresh everyone's tab list so the online/alive counts stay accurate for the new join too.
         plugin.getServer().getScheduler().runTask(plugin, () -> plugin.getTabListManager().updateAll());
+
+        if (isPreGame()) {
+            plugin.getLobbyKitManager().giveKit(event.getPlayer());
+        }
     }
 
     @EventHandler

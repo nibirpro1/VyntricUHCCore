@@ -63,6 +63,24 @@ main thread.
 limit change, manual pvp toggle, world border set, resetpass, track reset) require being
 run twice within a time window before they execute.
 
+**Pre-game lock** *(new)* - before `/vyntricuhc start` runs (i.e. during `PREGENERATING`/
+`WAITING`), regular players can't break blocks, place blocks, or deal any PVP damage at all.
+Operators and anyone with `vyntric.uhc.admin` bypass the lock completely.
+
+**Scenarios** *(new)* - `/vyntricuhc scenario list|enable|disable <name>`. Toggleable
+gameplay modifiers, active from the moment the round starts (grace period onward):
+`TIMBER` (break the base log, the whole tree falls), `DOUBLE_ORES` (ores drop double),
+`NO_TRADING` (villager/wandering trader trading disabled), `BAREBONES` (no natural
+health regen - only golden apples/potions heal), `CUTCLEAN` (logs mine directly into
+planks). Active scenarios are announced when the game starts and shown via the
+`{scenarios}` scoreboard placeholder.
+
+**Waiting lobby kit** *(new)* - every player gets a small kit while in the waiting lobby:
+a sword (so the existing team invite/kick-by-sword interaction actually has a sword to use),
+plus info items for active scenarios, your team, and your stats. Cleared automatically the
+instant the game starts. Fully configurable (slot/material/name/lore per item, or disable
+individually) under `lobby-kit` in config.yml.
+
 ## Commands
 
 | Command | Notes |
@@ -74,9 +92,9 @@ run twice within a time window before they execute.
 | `/track <team\|player>` / `top` / `reset <team>` / `help` | aliases `/vt`, `/crossteam` |
 
 `/vyntricuhc` subcommands: `start`, `stop`, `restart`, `border`, `deathmatch`, `team
-<create|add|list|accept|limit>`, `pregen <start|status> [size]`, **`setlobby`**, `meetup
-time <minutes>`, `passinfo <ign>`, `pvp <enable|disable|auto>`, `leaderboard`, `stats
-[player]`, `bounty <add|list>`, `reload`.
+<create|add|list|accept|limit>`, **`scenario <list|enable|disable> [name]`**, `pregen
+<start|status> [size]`, `setlobby`, `meetup time <minutes>`, `passinfo <ign>`, `pvp
+<enable|disable|auto>`, `leaderboard`, `stats [player]`, `bounty <add|list>`, `reload`.
 
 ## Permissions
 
@@ -93,8 +111,9 @@ time <minutes>`, `passinfo <ign>`, `pvp <enable|disable|auto>`, `leaderboard`, `
 ## Key config sections (`config.yml`)
 
 `auth`, `pregen`, `border`, `grace-period`, `deathmatch`, `combat-logout`, `golden-apple`,
-`potions`, `teams`, **`lobby-cage`** *(new)*, `confirmation`, `discord`, `scoreboard`,
-`tablist`, `messages`, `crossteam` (own `settings` + `messages` sub-sections).
+`potions`, `teams`, `lobby-cage`, **`scenarios`** *(new)*, **`lobby-kit`** *(new)*,
+`confirmation`, `discord`, `scoreboard`, `tablist`, `messages`, `crossteam` (own `settings`
++ `messages` sub-sections).
 
 ### `lobby-cage` (new)
 

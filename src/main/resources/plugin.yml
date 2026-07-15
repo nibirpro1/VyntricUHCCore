@@ -9,7 +9,7 @@ softdepend: [PlaceholderAPI]
 commands:
   vyntricuhc:
     description: Main VyntricUHCCore command
-    usage: /vyntricuhc <start|stop|restart|border|team|deathmatch|pregen|setlobby|meetup|passinfo|pvp|leaderboard|stats|bounty|reload>
+    usage: /vyntricuhc <start|stop|restart|border|team|scenario|deathmatch|pregen|setlobby|meetup|passinfo|pvp|leaderboard|stats|bounty|reload>
     permission: vyntric.uhc.admin
     aliases: [vuhc, vyntric]
   world:

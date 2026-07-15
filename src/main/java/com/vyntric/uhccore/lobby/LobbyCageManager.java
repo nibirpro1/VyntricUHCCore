@@ -233,6 +233,7 @@ public class LobbyCageManager implements Listener {
         if (!enabled) return;
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             cage(player);
+            plugin.getLobbyKitManager().giveKit(player);
         }
     }
 }

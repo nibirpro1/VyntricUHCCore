@@ -85,12 +85,14 @@ public class ScoreboardManager {
         String time = game != null ? TimeUtil.formatSeconds(game.getElapsedSeconds()) : "00:00";
         String borderSize = border != null ? String.valueOf((int) border.getCurrentSize()) : "N/A";
         String aliveTeams = team != null ? String.valueOf(team.countAliveTeams()) : "N/A";
+        String scenarios = plugin.getScenarioManager() != null ? plugin.getScenarioManager().describeEnabled() : "None";
 
         return line
                 .replace("{time}", time)
                 .replace("{border_size}", borderSize)
                 .replace("{alive_players}", String.valueOf(aliveCount))
                 .replace("{alive_teams}", aliveTeams)
+                .replace("{scenarios}", scenarios)
                 .replace("{phase}", phase);
     }
 

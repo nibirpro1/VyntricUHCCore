@@ -44,6 +44,9 @@ public class GameManager {
         if (phase != GamePhase.WAITING) return;
 
         plugin.getLobbyCageManager().releaseAll();
+        for (Player p : plugin.getServer().getOnlinePlayers()) {
+            plugin.getLobbyKitManager().clearKit(p);
+        }
 
         elapsedSeconds = 0;
         deathmatchTriggered = false;
@@ -60,6 +63,9 @@ public class GameManager {
         broadcast(plugin.getMessage("game-started"));
         if (phase == GamePhase.GRACE_PERIOD) {
             broadcast(plugin.getConfig().getString("grace-period.message", "&aGrace period active."));
+        }
+        if (!plugin.getScenarioManager().getEnabled().isEmpty()) {
+            broadcast("&5&lScenarios: &d" + plugin.getScenarioManager().describeEnabled());
         }
         plugin.getDiscordWebhook().send("🟢 The UHC game has started!");
 

@@ -3,6 +3,7 @@ package com.vyntric.uhccore.commands;
 import com.vyntric.uhccore.VyntricUHCCore;
 import com.vyntric.uhccore.auth.AuthManager;
 import com.vyntric.uhccore.game.GamePhase;
+import com.vyntric.uhccore.scenario.Scenario;
 import com.vyntric.uhccore.team.UHCTeam;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -58,6 +59,8 @@ public class UHCCommand implements CommandExecutor {
                 plugin.getScoreboardManager().loadConfig();
                 plugin.getTabListManager().loadConfig();
                 plugin.getLobbyCageManager().loadConfig();
+                plugin.getLobbyKitManager().loadConfig();
+                plugin.getScenarioManager().loadConfig();
 
                 GamePhase phase = plugin.getGameManager().getPhase();
                 if (phase == GamePhase.WAITING || phase == GamePhase.PREGENERATING) {
@@ -75,6 +78,7 @@ public class UHCCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.DARK_PURPLE + "Current phase: " + plugin.getGameManager().getPhase());
             }
             case "team" -> handleTeam(sender, args);
+            case "scenario" -> handleScenario(sender, args);
             case "pregen" -> handlePregen(sender, args);
             case "setlobby" -> handleSetLobby(sender);
             case "meetup" -> handleMeetup(sender, args);
@@ -415,6 +419,60 @@ public class UHCCommand implements CommandExecutor {
         }
     }
 
+    private void handleScenario(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(ChatColor.RED + "Usage: /vyntricuhc scenario <list|enable|disable> [name]");
+            return;
+        }
+
+        switch (args[1].toLowerCase()) {
+            case "list" -> {
+                sender.sendMessage(ChatColor.DARK_PURPLE + "--- Scenarios ---");
+                for (Scenario scenario : Scenario.values()) {
+                    boolean on = plugin.getScenarioManager().isEnabled(scenario);
+                    sender.sendMessage((on ? ChatColor.GREEN + "[ON] " : ChatColor.GRAY + "[off] ")
+                            + ChatColor.WHITE + scenario.getDisplayName()
+                            + ChatColor.GRAY + " - " + scenario.getDescription());
+                }
+            }
+            case "enable" -> {
+                if (args.length < 3) {
+                    sender.sendMessage(ChatColor.RED + "Usage: /vyntricuhc scenario enable <name>");
+                    return;
+                }
+                Scenario scenario = Scenario.fromString(args[2]);
+                if (scenario == null) {
+                    sender.sendMessage(ChatColor.RED + "Unknown scenario. Use /vyntricuhc scenario list to see valid names.");
+                    return;
+                }
+                if (!plugin.getScenarioManager().enable(scenario)) {
+                    sender.sendMessage(ChatColor.YELLOW + scenario.getDisplayName() + " is already enabled.");
+                    return;
+                }
+                broadcastToAll(ChatColor.DARK_PURPLE + "Scenario " + ChatColor.WHITE + scenario.getDisplayName()
+                        + ChatColor.DARK_PURPLE + " has been enabled!");
+            }
+            case "disable" -> {
+                if (args.length < 3) {
+                    sender.sendMessage(ChatColor.RED + "Usage: /vyntricuhc scenario disable <name>");
+                    return;
+                }
+                Scenario scenario = Scenario.fromString(args[2]);
+                if (scenario == null) {
+                    sender.sendMessage(ChatColor.RED + "Unknown scenario. Use /vyntricuhc scenario list to see valid names.");
+                    return;
+                }
+                if (!plugin.getScenarioManager().disable(scenario)) {
+                    sender.sendMessage(ChatColor.YELLOW + scenario.getDisplayName() + " is already disabled.");
+                    return;
+                }
+                broadcastToAll(ChatColor.DARK_PURPLE + "Scenario " + ChatColor.WHITE + scenario.getDisplayName()
+                        + ChatColor.DARK_PURPLE + " has been disabled.");
+            }
+            default -> sender.sendMessage(ChatColor.RED + "Unknown scenario subcommand. Use list, enable, or disable.");
+        }
+    }
+
     private void sendUsage(CommandSender sender) {
         sender.sendMessage(ChatColor.DARK_PURPLE + "--- VyntricUHCCore ---");
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc start");
@@ -423,6 +481,7 @@ public class UHCCommand implements CommandExecutor {
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc border");
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc deathmatch");
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc team <create|add|list|accept|limit>");
+        sender.sendMessage(ChatColor.GRAY + "/vyntricuhc scenario <list|enable|disable> [name]");
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc pregen <start|status> [size]");
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc setlobby");
         sender.sendMessage(ChatColor.GRAY + "/vyntricuhc meetup time <minutes>");

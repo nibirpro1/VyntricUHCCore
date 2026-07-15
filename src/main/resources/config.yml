@@ -103,6 +103,61 @@ lobby-cage:
   # players are left standing on solid ground instead of falling.
   clear-floor-on-release: true
 
+# ==========================================
+#  Scenarios
+# ==========================================
+scenarios:
+  # Which scenarios are active for the round - toggle with /vyntricuhc scenario enable|disable,
+  # or list them (and see descriptions) with /vyntricuhc scenario list. Valid names: TIMBER,
+  # DOUBLE_ORES, NO_TRADING, BAREBONES, CUTCLEAN. Effects only apply once the round is active
+  # (grace period onward) - nothing happens in the waiting lobby.
+  enabled: []
+
+# ==========================================
+#  Waiting lobby kit
+# ==========================================
+lobby-kit:
+  # Gives every player a small kit while they're in the waiting lobby (before /vyntricuhc
+  # start): a sword so team invite/kick works (see teams below), plus a scenarios/team/stats
+  # info item. Cleared automatically the instant the game starts. Each item below can be
+  # individually disabled, re-slotted, or re-skinned.
+  enabled: true
+  items:
+    team_sword:
+      enabled: true
+      slot: 0
+      material: IRON_SWORD
+      name: "&c&lTeam Tool"
+      lore:
+        - "&7Right-click a player to invite"
+        - "&7them to your team."
+        - "&7Hold this & right-click a"
+        - "&7teammate to kick them."
+    scenarios:
+      enabled: true
+      slot: 2
+      material: PAPER
+      name: "&d&lScenarios"
+      lore:
+        - "&7Click to see which scenarios"
+        - "&7are active for this round."
+    team_info:
+      enabled: true
+      slot: 3
+      material: AMETHYST_SHARD
+      name: "&5&lMy Team"
+      lore:
+        - "&7Click to view your current"
+        - "&7team and its members."
+    stats:
+      enabled: true
+      slot: 4
+      material: DIAMOND
+      name: "&b&lMy Stats"
+      lore:
+        - "&7Click to view your wins,"
+        - "&7kills and deaths."
+
 confirmation:
   # Master switch for the "run it again to confirm" safety check on risky commands
   # (start/stop/restart/reload, pregen start, team limit changes, manual pvp toggle,

@@ -14,10 +14,14 @@ import com.vyntric.uhccore.listeners.AuthListener;
 import com.vyntric.uhccore.listeners.CombatLogoutListener;
 import com.vyntric.uhccore.listeners.GameListener;
 import com.vyntric.uhccore.listeners.GoldenAppleListener;
+import com.vyntric.uhccore.listeners.LobbyKitListener;
 import com.vyntric.uhccore.listeners.PotionListener;
+import com.vyntric.uhccore.listeners.ScenarioListener;
 import com.vyntric.uhccore.listeners.TeamInteractListener;
 import com.vyntric.uhccore.lobby.LobbyCageManager;
+import com.vyntric.uhccore.lobby.LobbyKitManager;
 import com.vyntric.uhccore.placeholder.VyntricPlaceholders;
+import com.vyntric.uhccore.scenario.ScenarioManager;
 import com.vyntric.uhccore.scoreboard.ScoreboardManager;
 import com.vyntric.uhccore.stats.StatsManager;
 import com.vyntric.uhccore.tablist.TabListManager;
@@ -43,6 +47,8 @@ public class VyntricUHCCore extends JavaPlugin {
     private TabListManager tabListManager;
     private CrossteamModule crossteamModule;
     private LobbyCageManager lobbyCageManager;
+    private LobbyKitManager lobbyKitManager;
+    private ScenarioManager scenarioManager;
     private StatsManager statsManager;
     private BountyManager bountyManager;
     private DiscordWebhook discordWebhook;
@@ -65,6 +71,8 @@ public class VyntricUHCCore extends JavaPlugin {
         this.bountyManager = new BountyManager(this);
         this.discordWebhook = new DiscordWebhook(this);
         this.confirmationManager = new ConfirmationManager(this);
+        this.scenarioManager = new ScenarioManager(this);
+        this.lobbyKitManager = new LobbyKitManager(this);
         this.lobbyCageManager = new LobbyCageManager(this);
 
         getServer().getPluginManager().registerEvents(new GameListener(this), this);
@@ -73,6 +81,8 @@ public class VyntricUHCCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TeamInteractListener(this), this);
         getServer().getPluginManager().registerEvents(new AuthListener(this), this);
         getServer().getPluginManager().registerEvents(new CombatLogoutListener(this), this);
+        getServer().getPluginManager().registerEvents(new ScenarioListener(this), this);
+        getServer().getPluginManager().registerEvents(new LobbyKitListener(this), this);
         getServer().getPluginManager().registerEvents(lobbyCageManager, this);
 
         getCommand("vyntricuhc").setExecutor(new UHCCommand(this));
@@ -165,6 +175,14 @@ public class VyntricUHCCore extends JavaPlugin {
 
     public LobbyCageManager getLobbyCageManager() {
         return lobbyCageManager;
+    }
+
+    public LobbyKitManager getLobbyKitManager() {
+        return lobbyKitManager;
+    }
+
+    public ScenarioManager getScenarioManager() {
+        return scenarioManager;
     }
 
     public RandomSpreadTeleporter getRandomSpreadTeleporter() {
