@@ -86,14 +86,14 @@ lobby-cage:
   enabled: true
   world: "world"
   center-x: 0
-  center-y: 100
+  center-y: 120
   center-z: 0
   # Interior width/depth of each box in blocks (always forced to an odd number, minimum 3)
-  size: 3
+  size: 21
   # Interior height of each box in blocks
-  height: 3
+  height: 20
   # Distance between each box and the next
-  spacing: 6
+  spacing: 25
   # How many boxes per row before wrapping to a new row
   per-row: 5
   material: GLASS
